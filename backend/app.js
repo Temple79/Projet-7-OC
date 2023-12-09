@@ -1,9 +1,11 @@
 const express = require('express');
+require("dotenv").config();
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const booksRoutes = require('./routes/books');
 
-const Book = require('./models/book');
+const booksRoutes = require('./routes/books');
+const userRoutes = require('./routes/user');
+
 
 const app = express();
 
@@ -16,7 +18,9 @@ app.use((req, res, next) => {
 
 app.use(bodyParser.json());
 
-mongoose.connect('mongodb+srv://Projet_7_OC:Projet7OC@temple.crlt2vg.mongodb.net/?retryWrites=true&w=majority',
+const bdd_url="mongodb+srv://" + process.env.BDD_USER + ":" + process.env.BDD_PASSWORD + "@" + process.env.BDD_CLUSTER + "/" + process.env.BDD_NAME + "?retryWrites=true&w=majority";
+
+mongoose.connect(bdd_url,
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
@@ -25,5 +29,6 @@ mongoose.connect('mongodb+srv://Projet_7_OC:Projet7OC@temple.crlt2vg.mongodb.net
 app.use(express.json());
 
 app.use('/api/books', booksRoutes);
+app.use('/api/auth', userRoutes);
 
 module.exports = app;

@@ -2,10 +2,10 @@ const Book = require("../models/book");
 
 exports.createBook = (req, res, next) => {
   delete req.body._id;
-  const thing = new Book({
+  const book = new Book({
     ...req.body,
   });
-  Book.save()
+  book.save()
     .then(() => res.status(201).json({ message: "Objet enregistré !" }))
     .catch((error) => res.status(400).json({ error }));
 };
