@@ -96,3 +96,48 @@ exports.getAllBooks = (req, res, next) => {
     .then((books) => res.status(200).json(books))
     .catch((error) => res.status(400).json({ error }));
 };
+
+exports.newRating = (req, res, next) => {
+  Book.findOne({ _id: req.params.id })
+    .then((book) => {
+      const usersRatingDone = book.ratings.map((el) => el.userId);
+      if (usersRatingDone.includes(req.body.userId)) {
+        res.status(403).json({ message: "Livre déjà noté" });
+      } else {
+        Book.updateOne(
+          { _id: req.params.id },
+          { $push: {
+              ratings: { userId: req.body.userId, rate: req.body.rating },
+            },
+          });
+      }
+    })
+    .then(() => {
+      return Book.findOne({ _id: req.params.id })
+        .then((book) => {
+          const rates = book.ratings.map((el) => el.rate);
+          const allRates = rates.reduce(
+            (accumulator, currentValue) => accumulator + currentValue
+          );
+          const average = (allRates / rates.length).toFixed(1);
+          return Book.updateOne(
+            { _id: req.params.id },
+            {
+              $set: {
+                averageRating: average,
+              },
+            }
+          )
+            .then(() => {
+              return Book.findOne({ _id: req.params.id })
+                .then((book) => {
+                  res.status(201).json(book);
+                })
+                .catch((error) => res.status(400).json({ error }));
+            })
+            .catch((error) => res.status(400).json({ error }));
+        })
+        .catch((error) => res.status(400).json({ error }));
+    })
+    .catch((error) => res.status(400).json({ error }));
+};
