@@ -97,51 +97,70 @@ exports.getAllBooks = (req, res, next) => {
     .catch((error) => res.status(400).json({ error }));
 };
 
-exports.newRating = (req, res, next) => { 
-  Book.findOne({ _id: req.params.id })
+exports.newRating = (req, res, next) => {
+  Book
+    .findOne({ _id: req.params.id })
     .then((book) => {
-      const usersRatingDone = book.ratings.map((el) => el.userId);
-      
-      if (usersRatingDone.includes(req.body.userId)) {
+      const userRateCheck = book.ratings.map((el) => el.userId);
+      if (userRateCheck.includes(req.body.userId)) {
         res.status(403).json({ message: "Livre déjà noté" });
       } else {
         Book.updateOne(
           { _id: req.params.id },
-          { $push: {
+          {
+            $push: {
               ratings: { userId: req.body.userId, grade: req.body.rating },
             },
-          });
-      }
-      
-    })
-    .then(() => {
-      return Book.findOne({ _id: req.params.id })
-        .then((book) => {
-          const rates = book.ratings.map((el) => el.grade);
-          const allRates = rates.reduce(
-            (accumulator, currentValue) => accumulator + currentValue
-          );
-          const average = (allRates / rates.length).toFixed(1);
-          return Book.updateOne(
-            { _id: req.params.id },
-            {
-              $set: {
-                averageRating: average,
-              },
-            }
-          )
-            .then(() => {
-              return Book.findOne({ _id: req.params.id })
-                .then((book) => {
-                  res.status(201).json(book);
+          }
+        ).then(() => {
+          return Book.findOne({ _id: req.params.id })
+            .then((book) => {
+              const rates = book.ratings.map((el) => el.grade);
+              const allRates = rates.reduce(
+                (accumulator, currentValue) => accumulator + currentValue
+              );
+              
+              const average = Math.ceil((allRates / rates.length));
+              return Book.updateOne(
+                { _id: req.params.id },
+                {
+                  $set: {
+                    averageRating: average,
+                  },
+                }
+              )
+                .then(() => {
+                  return Book.findOne({ _id: req.params.id })
+                    .then((book) => {
+                      res.status(201).json(book);
+                    })
+                    .catch((error) => {
+                      console.log("Book -newRating : ERROR 1 : " + error);
+                      res
+                        .status(400)
+                        .json("Une erreur est intervenue lors de la notation");
+                    });
                 })
-                .catch((error) => res.status(400).json({ error }));
+                .catch((error) => {
+                  console.log("Book -newRating : ERROR 2 : " + error);
+                  res
+                    .status(400)
+                    .json("Une erreur est intervenue lors de la notation");
+                });
             })
-            .catch((error) => res.status(400).json({ error }));
-        })
-        .catch((error) => res.status(400).json({ error }));
+            .catch((error) => {
+              console.log("Book -newRating : ERROR 3 : " + error);
+              res
+                .status(400)
+                .json("Une erreur est intervenue lors de la notation");
+            });
+        });
+      }
     })
-    .catch((error) => res.status(400).json({ error }));
+    .catch((error) => {
+      console.log("Book -newRating : ERROR 4 : " + error);
+      res.status(400).json("Une erreur est intervenue lors de la notation");
+    });
 };
 
 exports.bestRating = (req, res, next) => {
