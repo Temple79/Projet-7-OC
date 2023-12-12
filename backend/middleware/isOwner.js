@@ -4,7 +4,7 @@ module.exports = (req, res, next) => {
   Book.findOne({ _id: req.params.id })
     .then((book) => {
       if (book.userId != req.auth.userId) {
-        res.status(401).json({ message: "Not authorized" });
+        return res.status(401).json({ message: "Not authorized" });
       } else {
         next();
       }

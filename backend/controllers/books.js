@@ -48,7 +48,12 @@ exports.modifyBook = (req, res, next) => {
             { ...bookObject, _id: req.params.id }
           )
             .then(() => res.status(200).json({ message: "Livre modifié !" }))
-            .catch((error) => res.status(400).json({ error }));
+            .catch((error) => {
+              console.log("Book -modifier : ERROR 1 : " + error);
+              res
+                .status(400)
+                .json("Une erreur est intervenue lors de la modification");
+            });
         });
       })
       .catch((error) => res.status(400).json({ error }));
@@ -62,7 +67,12 @@ exports.modifyBook = (req, res, next) => {
           { ...bookObject, _id: req.params.id }
         )
           .then(() => res.status(200).json({ message: "Livre modifié !" }))
-          .catch((error) => res.status(400).json({ error }));
+          .catch((error) => {
+            console.log("Book -modifier : ERROR 2 : " + error);
+            res
+              .status(400)
+              .json("Une erreur est intervenue lors de la modification");
+          });
       })
       .catch((error) => res.status(400).json({ error }));
   }
@@ -77,25 +87,43 @@ exports.deleteBook = (req, res, next) => {
           .then(() => {
             res.status(200).json({ message: "Livre supprimé !" });
           })
-          .catch((error) => res.status(401).json({ error }));
+          .catch((error) => {
+            console.log("Book -deleteBook : ERROR 1 : " + error);
+            res
+              .status(401)
+              .json("Une erreur est intervenue lors de la supression");
+          });
       });
     })
     .catch((error) => {
-      res.status(500).json({ error });
+      console.log("Book -deleteBook : ERROR 2 : " + error);
+      res
+        .status(401)
+        .json("Une erreur est intervenue lors de la supression");
     });
 };
 
 exports.getOneBook = (req, res, next) => {
   Book.findOne({ _id: req.params.id })
     .then((book) => res.status(200).json(book))
-    .catch((error) => res.status(404).json({ error }));
+    .catch((error) => {
+      console.log("Book -getOneBook : ERROR 1 : " + error);
+      res
+        .status(404)
+        .json("Une erreur est intervenue lors du choix du livre");
+    });
 };
 
 exports.getAllBooks = (req, res, next) => {
   Book.find()
     .then((books) => res.status(200).json(books))
-    .catch((error) => res.status(400).json({ error }));
-};
+    .catch((error) => {
+      console.log("Book -getAllBook : ERROR 1 : " + error);
+      res
+        .status(400)
+        .json("Une erreur est intervenue lors du chargement de tous les livres");
+    });
+  };
 
 exports.newRating = (req, res, next) => {
   Book
@@ -171,6 +199,9 @@ exports.bestRating = (req, res, next) => {
       res.status(200).json(books);
     })
     .catch((error) => {
-      res.status(400).json({ error });
+      console.log("Book -bestRating : ERROR 1 : " + error);
+      res
+        .status(400)
+        .json("Une erreur est intervenue lors du chargement des best ratings");
     });
 };

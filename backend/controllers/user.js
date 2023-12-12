@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const User = require("../models/User");
 
 exports.signup = (req, res, next) => {
+	console.log("koko");
+	
   bcrypt
     .hash(req.body.password, 10)
     .then((hash) => {
@@ -13,7 +15,12 @@ exports.signup = (req, res, next) => {
       user
         .save()
         .then(() => res.status(201).json({ message: "Utilisateur créé !" }))
-        .catch((error) => res.status(400).json({ error }));
+		.catch((error) => {
+			console.log("User-signup : ERROR 1 : " + error);
+			res
+			  .status(400)
+			  .json("Une erreur est intervenue lors du signup");
+		  });
     })
     .catch((error) => res.status(500).json({ error }));
 };
