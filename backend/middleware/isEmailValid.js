@@ -5,14 +5,13 @@ module.exports = (req, res, next) => {
   const { email } = req.body;
 
   if (email.length > 254) {
-    console.log("bloblo");
-    
-    return res.status(400).send({ message: "Email incorrect" });
+    console.log("IsmailValid : trop de caractères"+ email);
+    return res.status(400).send({ message: "Email incorrect" }); 
   }
 
   var valid = emailRegex.test(email);
   if (!valid) {
-    console.log("bla");
+    console.log("IsmailValid : email invalide "+ email);
     return res.status(400).send({ message: "Email incorrect" });
   }
 

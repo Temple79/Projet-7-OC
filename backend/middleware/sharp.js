@@ -6,25 +6,40 @@ module.exports = (req, res, next) => {
     console.log("Aucune image !");
     return next();
   }
+  /*
+  console.log(req.file.filename);
+  sharp(`images/${req.file.filename}`)
+  .resize({ width: 450 })
+  .toFile(`images/resize-${req.file.filename}`)
+  
+  next();
+*/
   sharp(req.file.path)
     .metadata()
     .then((metadata) => {
-      if (metadata.width > 600) {
-        return sharp(req.file.path).resize({ width: 600 }).toBuffer();
+      if (metadata.width > 450) {
+        console.log('>450');
+        return sharp(req.file.path).resize({ width: 450 }).toBuffer();
       } else {
+        console.log('<=450');
         return sharp(req.file.path).toBuffer();
       }
     })
     .then((data) => {
-      fs.writeFile(req.file.path, data, (err) => {
+      console.log('ecriture du fichier');
+      fs.writeFile(`images/resize-${req.file.filename}`, data, (err) => {
         if (err) {
+          console.log("Middelware Sharp : error 1 :");
           console.log(err);
-          next(err);
-        }
+          next();
+        } 
         next();
+        
       });
     })
     .catch((err) => {
+      console.log("Middelware Sharp : error :" + err);
       next(err);
     });
+    
 };

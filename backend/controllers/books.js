@@ -6,27 +6,28 @@ exports.createBook = (req, res, next) => {
   delete bookObject._id;
   delete bookObject._userId;
 
-  const book = new Book({
-    ...bookObject,
-    userId: req.auth.userId,
-    imageUrl: `${req.protocol}://${req.get("host")}/images/${
-      req.file.filename
-    }`,
-  });
 
-  book
-    .save()
-    .then(() => {
-      res.status(201).json({ message: "Livre enregistré !" });
-    })
-    .catch((error) => {
-      console.log("controller.book.create : ERROR 1 :  " + error);
-      res
-        .status(400)
-        .json(
-          " Une erreur est intervenue, merci de contacter l'administrateur (catch1)"
-        );
+    const book = new Book({
+      ...bookObject,
+      userId: req.auth.userId,
+      imageUrl: `${req.protocol}://${req.get("host")}/images/resize-${
+        req.file.filename
+      }`,
     });
+    book
+      .save()
+      .then(() => {
+        res.status(201).json({ message: "Livre enregistré !" });
+      })
+      .catch((error) => {
+        console.log("controller.book.create : ERROR 1 :  " + error);
+        res
+          .status(400)
+          .json(
+            " Une erreur est intervenue, merci de contacter l'administrateur (catch1)"
+          );
+      });
+
 };
 
 exports.modifyBook = (req, res, next) => {
@@ -97,9 +98,7 @@ exports.deleteBook = (req, res, next) => {
     })
     .catch((error) => {
       console.log("Book -deleteBook : ERROR 2 : " + error);
-      res
-        .status(401)
-        .json("Une erreur est intervenue lors de la supression");
+      res.status(401).json("Une erreur est intervenue lors de la supression");
     });
 };
 
@@ -108,9 +107,7 @@ exports.getOneBook = (req, res, next) => {
     .then((book) => res.status(200).json(book))
     .catch((error) => {
       console.log("Book -getOneBook : ERROR 1 : " + error);
-      res
-        .status(404)
-        .json("Une erreur est intervenue lors du choix du livre");
+      res.status(404).json("Une erreur est intervenue lors du choix du livre");
     });
 };
 
@@ -121,13 +118,14 @@ exports.getAllBooks = (req, res, next) => {
       console.log("Book -getAllBook : ERROR 1 : " + error);
       res
         .status(400)
-        .json("Une erreur est intervenue lors du chargement de tous les livres");
+        .json(
+          "Une erreur est intervenue lors du chargement de tous les livres"
+        );
     });
-  };
+};
 
 exports.newRating = (req, res, next) => {
-  Book
-    .findOne({ _id: req.params.id })
+  Book.findOne({ _id: req.params.id })
     .then((book) => {
       const userRateCheck = book.ratings.map((el) => el.userId);
       if (userRateCheck.includes(req.body.userId)) {
@@ -147,8 +145,8 @@ exports.newRating = (req, res, next) => {
               const allRates = rates.reduce(
                 (accumulator, currentValue) => accumulator + currentValue
               );
-              
-              const average = Math.ceil((allRates / rates.length));
+
+              const average = Math.ceil(allRates / rates.length);
               return Book.updateOne(
                 { _id: req.params.id },
                 {
