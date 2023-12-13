@@ -26,7 +26,6 @@ module.exports = (req, res, next) => {
       }
     })
     .then((data) => {
-      console.log('ecriture du fichier');
       fs.writeFile(`images/resize-${req.file.filename}`, data, (err) => {
         if (err) {
           console.log("Middelware Sharp : error 1 :");
